@@ -274,7 +274,7 @@ const OrganizationApp = () => {
           </CardHeader>
           {expandedSections.trabalho && <CardContent className="space-y-6 p-6">
             <div>
-              <h3 className="font-semibold mb-3">Reuniões Agendadas</h3>
+              <h3 className="font-semibold mb-3">Reuniões e Tarefas</h3>
               <TaskList tasks={data.meetings} section="meetings" showDate placeholder="Ex: Reunião de equipe" onUpdateTask={updateTask} onRemoveTask={removeTask} onAddTask={addTask} />
             </div>
 
