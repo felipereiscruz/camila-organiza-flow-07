@@ -612,11 +612,11 @@ const Home = () => {
             </CardContent>
           </Card>
           
-          <Card className="border-accent/20">
+          <Card className="border-primary/20">
             <CardContent className="p-4 text-center">
-              <CalendarDays className="w-6 h-6 mx-auto mb-2 text-accent-foreground" />
-              <p className="text-sm text-muted-foreground">Eventos Agendados</p>
-              <p className="text-2xl font-bold text-accent-foreground">{datesWithEvents.length}</p>
+              <CalendarDays className="w-6 h-6 mx-auto mb-2 text-primary" />
+              <p className="text-sm text-muted-foreground">GJ e Outros Eventos</p>
+              <p className="text-2xl font-bold text-primary">{[...data.gjMeetings, ...data.outrosEventos].filter(task => task.date).length}</p>
             </CardContent>
           </Card>
 
