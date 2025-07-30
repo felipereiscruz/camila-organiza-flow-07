@@ -453,9 +453,9 @@ const Home = () => {
           </Card>
 
           {/* Selected Date Events - moved to sidebar */}
-          <Card className="border-2 border-accent/20 shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-accent/10 to-accent/5">
-              <CardTitle className="flex items-center gap-2 text-accent-foreground">
+          <Card className="border-2 border-primary/20 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-primary/10 to-primary-glow/10">
+              <CardTitle className="flex items-center gap-2 text-primary">
                 <Clock className="w-5 h-5" />
                 {format(selectedDate, "EEEE, d 'de' MMMM", {
                 locale: ptBR
