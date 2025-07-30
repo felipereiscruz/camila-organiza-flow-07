@@ -18,7 +18,7 @@ interface Task {
   urgent?: boolean;
 }
 
-type TaskSection = 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings';
+type TaskSection = 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings' | 'outrosEventos';
 
 interface TaskListProps {
   tasks: Task[];

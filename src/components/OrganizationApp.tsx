@@ -34,6 +34,7 @@ interface OrganizationData {
   workoutPlan: WorkoutPlan | null;
   gjMeetings: Task[];
   gjEvents: string;
+  outrosEventos: Task[];
 }
 const DAYS = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
 const OrganizationApp = () => {
@@ -46,7 +47,8 @@ const OrganizationApp = () => {
     workTasks: [],
     workoutPlan: null,
     gjMeetings: [],
-    gjEvents: ''
+    gjEvents: '',
+    outrosEventos: []
   });
   const [showWorkoutForm, setShowWorkoutForm] = useState(false);
   const [workoutForm, setWorkoutForm] = useState({
@@ -70,7 +72,8 @@ const OrganizationApp = () => {
     faculdade: true,
     trabalho: true,
     academia: true,
-    gj: true
+    gj: true,
+    outros: true
   });
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections(prev => ({
@@ -97,7 +100,8 @@ const OrganizationApp = () => {
         assignments: convertDates(parsedData.assignments || []),
         meetings: convertDates(parsedData.meetings || []),
         workTasks: convertDates(parsedData.workTasks || []),
-        gjMeetings: convertDates(parsedData.gjMeetings || [])
+        gjMeetings: convertDates(parsedData.gjMeetings || []),
+        outrosEventos: convertDates(parsedData.outrosEventos || [])
       });
     }
   }, []);
@@ -106,7 +110,7 @@ const OrganizationApp = () => {
   useEffect(() => {
     localStorage.setItem('camilaOrganization', JSON.stringify(data));
   }, [data]);
-  const addTask = (section: keyof Pick<OrganizationData, 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings'>) => {
+  const addTask = (section: keyof Pick<OrganizationData, 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings' | 'outrosEventos'>) => {
     const newTask: Task = {
       id: Date.now().toString(),
       text: ''
@@ -116,7 +120,7 @@ const OrganizationApp = () => {
       [section]: [...prev[section], newTask]
     }));
   };
-  const updateTask = (section: keyof Pick<OrganizationData, 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings'>, id: string, updates: Partial<Task>) => {
+  const updateTask = (section: keyof Pick<OrganizationData, 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings' | 'outrosEventos'>, id: string, updates: Partial<Task>) => {
     setData(prev => ({
       ...prev,
       [section]: prev[section].map(task => task.id === id ? {
@@ -125,7 +129,7 @@ const OrganizationApp = () => {
       } : task)
     }));
   };
-  const removeTask = (section: keyof Pick<OrganizationData, 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings'>, id: string) => {
+  const removeTask = (section: keyof Pick<OrganizationData, 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings' | 'outrosEventos'>, id: string) => {
     setData(prev => ({
       ...prev,
       [section]: prev[section].filter(task => task.id !== id)
@@ -399,6 +403,30 @@ const OrganizationApp = () => {
             <Button onClick={() => clearSection('gjMeetings')} variant="destructive" size="sm" className="w-full">
               <Trash2 className="w-4 h-4 mr-2" />
               Limpar Seção GJ
+            </Button>
+          </CardContent>}
+        </Card>
+
+        {/* Outros Eventos Section */}
+        <Card className="border-2 border-gray-300 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-gray-100 to-gray-50 cursor-pointer hover:bg-gray-200 transition-colors" onClick={() => toggleSection('outros')}>
+            <CardTitle className="flex items-center justify-between text-gray-700">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-5 h-5" />
+                📅 Outros Eventos
+              </div>
+              {expandedSections.outros ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+            </CardTitle>
+          </CardHeader>
+          {expandedSections.outros && <CardContent className="space-y-6 p-6">
+            <div>
+              <h3 className="font-semibold mb-3">Eventos Diversos</h3>
+              <TaskList tasks={data.outrosEventos} section="outrosEventos" showDate placeholder="Ex: Aniversário da Maria" onUpdateTask={updateTask} onRemoveTask={removeTask} onAddTask={addTask} />
+            </div>
+
+            <Button onClick={() => clearSection('outrosEventos')} variant="destructive" size="sm" className="w-full">
+              <Trash2 className="w-4 h-4 mr-2" />
+              Limpar Outros Eventos
             </Button>
           </CardContent>}
         </Card>

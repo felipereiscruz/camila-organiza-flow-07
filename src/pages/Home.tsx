@@ -41,6 +41,7 @@ interface OrganizationData {
   completedWorkouts: CompletedWorkouts;
   gjMeetings: Task[];
   gjEvents: string;
+  outrosEventos: Task[];
 }
 const DAYS_MAP: {
   [key: string]: number;
@@ -65,7 +66,8 @@ const Home = () => {
     workoutPlan: null,
     completedWorkouts: {},
     gjMeetings: [],
-    gjEvents: ''
+    gjEvents: '',
+    outrosEventos: []
   });
 
   // Load data from localStorage
@@ -82,7 +84,7 @@ const Home = () => {
   }, [data]);
 
   // Toggle task completion
-  const toggleTaskCompletion = (taskId: string, section: keyof Pick<OrganizationData, 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings'>) => {
+  const toggleTaskCompletion = (taskId: string, section: keyof Pick<OrganizationData, 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings' | 'outrosEventos'>) => {
     setData(prev => ({
       ...prev,
       [section]: (prev[section] as Task[]).map(task => 
@@ -192,6 +194,22 @@ const Home = () => {
       }
     });
 
+    // Check outros eventos
+    data.outrosEventos.forEach(evento => {
+      if (evento.date && isSameDay(parseISO(evento.date), date)) {
+        tasks.push({
+          id: evento.id,
+          text: evento.text,
+          type: 'Outros',
+          icon: '📅',
+          completed: evento.completed,
+          date: evento.date,
+          section: 'outrosEventos',
+          urgent: evento.urgent
+        });
+      }
+    });
+
     // Check workouts for this day of week (workouts don't have completion checkboxes)
     const dayName = Object.keys(DAYS_MAP).find(day => DAYS_MAP[day] === date.getDay());
     if (dayName && data.workoutPlan?.schedule[dayName]) {
@@ -215,7 +233,8 @@ const Home = () => {
       faculdade: [] as Date[],
       trabalho: [] as Date[],
       academia: [] as Date[],
-      gj: [] as Date[]
+      gj: [] as Date[],
+      outros: [] as Date[]
     };
 
     // Faculdade (exams and assignments)
@@ -251,6 +270,17 @@ const Home = () => {
       }
     });
 
+    // Outros eventos
+    data.outrosEventos.forEach(task => {
+      if (task.date) {
+        try {
+          datesByType.outros.push(parseISO(task.date));
+        } catch (error) {
+          // Invalid date, skip
+        }
+      }
+    });
+
     // Academia (workouts)
     if (data.workoutPlan) {
       const today = new Date();
@@ -270,7 +300,7 @@ const Home = () => {
   // Get dates that have events (legacy function for urgent tasks)
   const getDatesWithEvents = () => {
     const dates: Date[] = [];
-    [...data.exams, ...data.assignments, ...data.meetings, ...data.workTasks, ...data.gjMeetings].forEach(task => {
+    [...data.exams, ...data.assignments, ...data.meetings, ...data.workTasks, ...data.gjMeetings, ...data.outrosEventos].forEach(task => {
       if (task.date) {
         try {
           dates.push(parseISO(task.date));
@@ -285,7 +315,7 @@ const Home = () => {
   // Get dates that have urgent tasks
   const getDatesWithUrgentTasks = () => {
     const dates: Date[] = [];
-    [...data.exams, ...data.assignments, ...data.meetings, ...data.workTasks, ...data.gjMeetings].forEach(task => {
+    [...data.exams, ...data.assignments, ...data.meetings, ...data.workTasks, ...data.gjMeetings, ...data.outrosEventos].forEach(task => {
       if (task.date && task.urgent) {
         try {
           dates.push(parseISO(task.date));
@@ -356,12 +386,12 @@ const Home = () => {
   // Count overdue tasks
   const getOverdueTasks = () => {
     const now = new Date();
-    return [...data.exams, ...data.assignments, ...data.meetings, ...data.workTasks, ...data.gjMeetings]
+    return [...data.exams, ...data.assignments, ...data.meetings, ...data.workTasks, ...data.gjMeetings, ...data.outrosEventos]
       .filter(task => !task.completed && task.date && new Date(task.date) < now);
   };
 
   // Count total pending tasks
-  const pendingTasks = [...data.exams.filter(t => !t.completed), ...data.assignments.filter(t => !t.completed), ...data.meetings.filter(t => !t.completed), ...data.workTasks.filter(t => !t.completed), ...data.gjMeetings.filter(t => !t.completed)].length;
+  const pendingTasks = [...data.exams.filter(t => !t.completed), ...data.assignments.filter(t => !t.completed), ...data.meetings.filter(t => !t.completed), ...data.workTasks.filter(t => !t.completed), ...data.gjMeetings.filter(t => !t.completed), ...data.outrosEventos.filter(t => !t.completed)].length;
   
   const selectedDateWorkout = getWorkoutForDate(selectedDate);
   const completedWorkoutsThisWeek = getCompletedWorkoutsThisWeek();
@@ -407,14 +437,16 @@ const Home = () => {
                       hasFaculdade: datesByType.faculdade,
                       hasTrabalho: datesByType.trabalho,
                       hasAcademia: datesByType.academia,
-                      hasGj: datesByType.gj
+                      hasGj: datesByType.gj,
+                      hasOutros: datesByType.outros
                     }} 
                     modifiersClassNames={{
                       hasUrgentTask: "!bg-red-600 !text-white !border-red-600 !border-2",
                       hasFaculdade: "!border-green-500 !border-2",
                       hasTrabalho: "!border-purple-500 !border-2", 
                       hasAcademia: "!border-blue-500 !border-2",
-                      hasGj: "!border-amber-700 !border-2"
+                      hasGj: "!border-amber-700 !border-2",
+                      hasOutros: "!border-gray-500 !border-2"
                     }}
                   />
                 </div>
@@ -441,6 +473,10 @@ const Home = () => {
                     <div className="flex items-center gap-2">
                       <div className="w-3 h-3 border border-amber-700 rounded flex-shrink-0"></div>
                       <span>🙌 GJ</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 border border-gray-500 rounded flex-shrink-0"></div>
+                      <span>📅 Outros Eventos</span>
                     </div>
                     <div className="flex items-center gap-2 sm:col-span-2 lg:col-span-1 pt-2 border-t border-border/20">
                       <div className="w-3 h-3 bg-red-600 rounded flex-shrink-0"></div>
