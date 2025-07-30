@@ -26,7 +26,6 @@ interface WorkoutPlan {
     } | null;
   };
 }
-
 interface CompletedWorkouts {
   [key: string]: boolean; // date string as key, completed as value
 }
@@ -87,9 +86,10 @@ const Home = () => {
   const toggleTaskCompletion = (taskId: string, section: keyof Pick<OrganizationData, 'exams' | 'videoLessons' | 'assignments' | 'meetings' | 'workTasks' | 'gjMeetings' | 'outrosEventos'>) => {
     setData(prev => ({
       ...prev,
-      [section]: (prev[section] as Task[]).map(task => 
-        task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
+      [section]: (prev[section] as Task[]).map(task => task.id === taskId ? {
+        ...task,
+        completed: !task.completed
+      } : task)
     }));
   };
 
@@ -293,7 +293,6 @@ const Home = () => {
         }
       }
     }
-
     return datesByType;
   };
 
@@ -326,7 +325,6 @@ const Home = () => {
     });
     return dates;
   };
-  
   const selectedDateTasks = getTasksForDate(selectedDate);
   const datesByType = getDatesWithEventsByType();
   const datesWithEvents = getDatesWithEvents();
@@ -371,7 +369,6 @@ const Home = () => {
     const today = new Date();
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - today.getDay());
-    
     let completed = 0;
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek);
@@ -386,13 +383,11 @@ const Home = () => {
   // Count overdue tasks
   const getOverdueTasks = () => {
     const now = new Date();
-    return [...data.exams, ...data.assignments, ...data.meetings, ...data.workTasks, ...data.gjMeetings, ...data.outrosEventos]
-      .filter(task => !task.completed && task.date && new Date(task.date) < now);
+    return [...data.exams, ...data.assignments, ...data.meetings, ...data.workTasks, ...data.gjMeetings, ...data.outrosEventos].filter(task => !task.completed && task.date && new Date(task.date) < now);
   };
 
   // Count total pending tasks
   const pendingTasks = [...data.exams.filter(t => !t.completed), ...data.assignments.filter(t => !t.completed), ...data.meetings.filter(t => !t.completed), ...data.workTasks.filter(t => !t.completed), ...data.gjMeetings.filter(t => !t.completed), ...data.outrosEventos.filter(t => !t.completed)].length;
-  
   const selectedDateWorkout = getWorkoutForDate(selectedDate);
   const completedWorkoutsThisWeek = getCompletedWorkoutsThisWeek();
   const totalWorkoutsPerWeek = getTotalWorkoutsPerWeek();
@@ -426,29 +421,21 @@ const Home = () => {
               <div className="flex flex-col lg:flex-row gap-6">
                 {/* Calendar */}
                 <div className="flex-1">
-                  <Calendar 
-                    mode="single" 
-                    selected={selectedDate} 
-                    onSelect={date => date && setSelectedDate(date)} 
-                    className="rounded-md border w-full" 
-                    locale={ptBR} 
-                    modifiers={{
-                      hasUrgentTask: datesWithUrgentTasks,
-                      hasFaculdade: datesByType.faculdade,
-                      hasTrabalho: datesByType.trabalho,
-                      hasAcademia: datesByType.academia,
-                      hasGj: datesByType.gj,
-                      hasOutros: datesByType.outros
-                    }} 
-                    modifiersClassNames={{
-                      hasUrgentTask: "!bg-red-600 !text-white !border-red-600 !border-2",
-                      hasFaculdade: "!border-green-500 !border-2",
-                      hasTrabalho: "!border-purple-500 !border-2", 
-                      hasAcademia: "!border-blue-500 !border-2",
-                      hasGj: "!border-amber-700 !border-2",
-                      hasOutros: "!border-gray-500 !border-2"
-                    }}
-                  />
+                  <Calendar mode="single" selected={selectedDate} onSelect={date => date && setSelectedDate(date)} className="rounded-md border w-full" locale={ptBR} modifiers={{
+                  hasUrgentTask: datesWithUrgentTasks,
+                  hasFaculdade: datesByType.faculdade,
+                  hasTrabalho: datesByType.trabalho,
+                  hasAcademia: datesByType.academia,
+                  hasGj: datesByType.gj,
+                  hasOutros: datesByType.outros
+                }} modifiersClassNames={{
+                  hasUrgentTask: "!bg-red-600 !text-white !border-red-600 !border-2",
+                  hasFaculdade: "!border-green-500 !border-2",
+                  hasTrabalho: "!border-purple-500 !border-2",
+                  hasAcademia: "!border-blue-500 !border-2",
+                  hasGj: "!border-amber-700 !border-2",
+                  hasOutros: "!border-gray-500 !border-2"
+                }} />
                 </div>
                 
                 {/* Legend - responsive: right side on large screens, bottom on small screens */}
@@ -501,58 +488,28 @@ const Home = () => {
             <CardContent className="p-6">
               {selectedDateTasks.length > 0 ? <div className="space-y-3">
                   {selectedDateTasks.map((task, index) => {
-                    const isOverdue = isTaskOverdue(task.date);
-                    const cardClass = task.completed 
-                      ? 'bg-green-100 border-green-300' 
-                      : isOverdue && task.section !== 'workout'
-                      ? 'bg-red-100 border-red-300'
-                      : 'bg-secondary/50 border-border';
-                    
-                    return (
-                      <div key={index} className={`flex items-center gap-3 p-3 rounded-lg border ${cardClass}`}>
-                        {task.section !== 'workout' && (
-                          <Checkbox 
-                            checked={task.completed || false}
-                            onCheckedChange={() => toggleTaskCompletion(task.id, task.section as any)}
-                            className="mt-1"
-                          />
-                        )}
+                const isOverdue = isTaskOverdue(task.date);
+                const cardClass = task.completed ? 'bg-green-100 border-green-300' : isOverdue && task.section !== 'workout' ? 'bg-red-100 border-red-300' : 'bg-secondary/50 border-border';
+                return <div key={index} className={`flex items-center gap-3 p-3 rounded-lg border ${cardClass}`}>
+                        {task.section !== 'workout' && <Checkbox checked={task.completed || false} onCheckedChange={() => toggleTaskCompletion(task.id, task.section as any)} className="mt-1" />}
                         <span className="text-lg">{task.icon}</span>
                         <div className="flex-1">
-                           <Badge 
-                             variant="outline" 
-                             className={`mb-1 text-xs ${
-                               task.completed 
-                                 ? 'border-green-500 text-green-700' 
-                                 : isOverdue && task.section !== 'workout'
-                                 ? 'border-red-500 text-red-700'
-                                 : ''
-                             }`}
-                           >
+                           <Badge variant="outline" className={`mb-1 text-xs ${task.completed ? 'border-green-500 text-green-700' : isOverdue && task.section !== 'workout' ? 'border-red-500 text-red-700' : ''}`}>
                              {task.type}
                            </Badge>
-                           <p className={`text-sm ${
-                             task.completed 
-                               ? 'line-through text-green-600' 
-                               : isOverdue && task.section !== 'workout'
-                               ? 'text-red-700 font-medium'
-                               : ''
-                           }`}>
+                           <p className={`text-sm ${task.completed ? 'line-through text-green-600' : isOverdue && task.section !== 'workout' ? 'text-red-700 font-medium' : ''}`}>
                              {task.text}
-                             {task.urgent && (
-                               <Badge variant="destructive" className="ml-2 text-xs">
+                             {task.urgent && <Badge variant="destructive" className="ml-2 text-xs">
                                  Tarefa Urgente
-                               </Badge>
-                             )}
+                               </Badge>}
                            </p>
                          </div>
-                      </div>
-                    );
-                  })}
+                      </div>;
+              })}
                 </div> : <div className="text-center py-8 text-muted-foreground">
                   <CalendarDays className="w-12 h-12 mx-auto mb-3 opacity-50" />
                   <p>Nenhum compromisso para este dia</p>
-                  <p className="text-xs mt-1">Que tal aproveitar para relaxar? 😌</p>
+                  <p className="text-xs mt-1">Que tal aproveitar para relaxar caozin? 😌</p>
                 </div>}
             </CardContent>
           </Card>
@@ -560,8 +517,7 @@ const Home = () => {
 
 
         {/* Overdue Tasks Alert or Success Message */}
-        {overdueTasks.length > 0 ? (
-          <Card className="border-2 border-primary/20 shadow-lg">
+        {overdueTasks.length > 0 ? <Card className="border-2 border-primary/20 shadow-lg">
             <CardContent className="p-4 bg-gradient-to-r from-primary/10 to-primary-glow/10">
               <div className="flex items-center gap-3">
                 <div className="flex-1">
@@ -572,16 +528,10 @@ const Home = () => {
                     Caozin, você está com tarefas atrasadas, compromisso cara...
                   </p>
                 </div>
-                <img 
-                  src="/lovable-uploads/65d46097-e63d-4ef8-88b8-cd7edf624010.png" 
-                  alt="Stitch preocupado" 
-                  className="w-12 h-12 object-contain"
-                />
+                <img src="/lovable-uploads/65d46097-e63d-4ef8-88b8-cd7edf624010.png" alt="Stitch preocupado" className="w-12 h-12 object-contain" />
               </div>
             </CardContent>
-          </Card>
-        ) : pendingTasks > 0 ? (
-          <Card className="border-2 border-primary/20 shadow-lg">
+          </Card> : pendingTasks > 0 ? <Card className="border-2 border-primary/20 shadow-lg">
             <CardContent className="p-4 bg-gradient-to-r from-primary/10 to-primary-glow/10">
               <div className="flex items-center gap-3">
                 <div className="flex-1">
@@ -592,15 +542,10 @@ const Home = () => {
                     Parabéns! Continue assim!
                   </p>
                 </div>
-                <img 
-                  src="/lovable-uploads/1ebadb55-1053-4b5c-9119-607884f56e3f.png" 
-                  alt="Stitch feliz" 
-                  className="w-12 h-12 object-contain"
-                />
+                <img src="/lovable-uploads/1ebadb55-1053-4b5c-9119-607884f56e3f.png" alt="Stitch feliz" className="w-12 h-12 object-contain" />
               </div>
             </CardContent>
-          </Card>
-        ) : null}
+          </Card> : null}
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -615,7 +560,7 @@ const Home = () => {
           <Card className="border-primary/20">
             <CardContent className="p-4 text-center">
               <CalendarDays className="w-6 h-6 mx-auto mb-2 text-primary" />
-              <p className="text-sm text-muted-foreground">GJ e Outros Eventos</p>
+              <p className="text-sm text-muted-foreground">Eventos Agendados</p>
               <p className="text-2xl font-bold text-primary">{[...data.gjMeetings, ...data.outrosEventos].filter(task => task.date).length}</p>
             </CardContent>
           </Card>
@@ -625,25 +570,14 @@ const Home = () => {
               <Dumbbell className="w-6 h-6 mx-auto mb-2 text-secondary-foreground" />
               <p className="text-sm text-muted-foreground">Treino do dia</p>
               <div className="min-h-[2rem] flex items-center justify-center">
-                {selectedDateWorkout ? (
-                  <div className="text-center">
+                {selectedDateWorkout ? <div className="text-center">
                     <p className="text-sm font-medium text-secondary-foreground">
                       {selectedDateWorkout}
                     </p>
-                    <button
-                      onClick={() => toggleWorkoutCompletion(selectedDate)}
-                      className={`mt-2 text-xs px-2 py-1 rounded ${
-                        isWorkoutCompleted(selectedDate) 
-                          ? 'bg-green-100 text-green-700' 
-                          : 'bg-gray-100 text-gray-600'
-                      }`}
-                    >
+                    <button onClick={() => toggleWorkoutCompletion(selectedDate)} className={`mt-2 text-xs px-2 py-1 rounded ${isWorkoutCompleted(selectedDate) ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
                       {isWorkoutCompleted(selectedDate) ? '✓ Concluído' : 'Marcar como feito'}
                     </button>
-                  </div>
-                ) : (
-                  <p className="text-xs text-muted-foreground">Sem treino</p>
-                )}
+                  </div> : <p className="text-xs text-muted-foreground">Sem treino</p>}
               </div>
             </CardContent>
           </Card>
